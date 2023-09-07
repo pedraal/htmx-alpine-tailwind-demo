@@ -30,7 +30,7 @@
       </li>
       <li>
         <a class="text-blue-700 hover:underline" href="/post3" hx-get="/post3" hx-target="#htmx-target"
-          hx-select="#htmx-select">Post3</a>
+          hx-select="#htmx-select" hx-indicator="#htmx-indicator">Post3</a>
       </li>
     </ul>
     <div x-data="postSlideOver" class="relative z-50 w-auto h-auto">
@@ -47,7 +47,7 @@
                       <div class="flex items-start justify-between pb-1">
 
 
-                        <h2 class="text-4xl font-semibold leading-6 text-gray-900" id="htmx-title"></h2>
+                        <h2 class="text-4xl font-semibold leading-6 text-gray-900" id="htmx-title">Loading...</h2>
 
 
                         <div class="flex items-center h-auto ml-3">
@@ -64,11 +64,25 @@
                     </div>
                     <div class="relative flex-1 px-4 mt-5 sm:px-5">
                       <div class="absolute inset-0 px-4 sm:px-5">
-
-
                         <div
-                          class="relative h-full overflow-y-scroll border border-dashed rounded-md border-neutral-300 p-4"
-                          id="htmx-target"></div>
+                          class="relative h-full overflow-y-scroll border border-dashed rounded-md border-neutral-300 p-4">
+
+
+                          <div id="htmx-target"></div>
+
+
+                          <div id="htmx-indicator"
+                            class="absolute inset-0 bg-stone-300/50 flex items-center justify-center htmx-indicator">
+                            <svg class="animate-spin -ml-1 mr-3 h-16 w-16 text-stone-700"
+                              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                              </circle>
+                              <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                              </path>
+                            </svg>
+                          </div>
+                        </div>
 
 
                       </div>
@@ -83,6 +97,7 @@
     </div>
   </main>
   <script>
+    // htmx.logAll()
     document.addEventListener('alpine:init', () => {
       Alpine.data('postSlideOver', () => ({
         open: false,
@@ -92,7 +107,23 @@
               this.open = true
             }
           })
+          document.body.addEventListener('htmx:trigger', (event) => {
+            if (event.detail.elt.getAttribute('hx-indicator') === '#htmx-indicator') {
+              this.open = true
+            }
+          })
+
+          this.$watch('open', () => {
+            if (!this.open) {
+              setTimeout(() => {
+                document.querySelector('#htmx-title').innerHTML = 'Loading...'
+                document.querySelector('#htmx-target').innerHTML = ''
+              }, 500);
+
+            }
+          })
         },
+
         template: {
           'x-teleport': 'body',
         },
@@ -117,7 +148,7 @@
         },
         closeButton: {
           ['@click']() { this.open = false }
-        }
+        },
       }))
     })
   </script>
