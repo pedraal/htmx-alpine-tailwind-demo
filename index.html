@@ -1,0 +1,126 @@
+<html>
+
+<head>
+  <meta charSet="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>htmx-alpine-tailwind - Home</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js">
+  </script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.5"
+    integrity="sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO"
+    crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <nav class="container flex items-center gap-2 mx-auto mb-4 border-b py-2">
+    <a href="/">Home</a>
+  </nav>
+  <main class="container mx-auto">
+    <h1 class="text-4xl">Home title</h1>
+    <div>This is the home page content</div>
+    <ul class="mt-8 ml-8 list-disc">
+      <li>
+        <a class="text-blue-700 hover:underline" href="/post1" hx-get="/post1" hx-target="#htmx-target"
+          hx-select="#htmx-select">Post1</a>
+      </li>
+      <li>
+        <a class="text-blue-700 hover:underline" href="/post2" hx-get="/post2" hx-target="#htmx-target"
+          hx-select="#htmx-select">Post2</a>
+      </li>
+      <li>
+        <a class="text-blue-700 hover:underline" href="/post3" hx-get="/post3" hx-target="#htmx-target"
+          hx-select="#htmx-select">Post3</a>
+      </li>
+    </ul>
+    <div x-data="postSlideOver" class="relative z-50 w-auto h-auto">
+      <template x-bind="template">
+        <div x-bind="wrapper" class="relative z-[99]">
+          <div x-bind="backdrop" class="fixed inset-0 bg-black bg-opacity-10"></div>
+          <div class="fixed inset-0 overflow-hidden">
+            <div class="absolute inset-0 overflow-hidden">
+              <div class="fixed inset-y-0 right-0 flex max-w-full pl-10">
+                <div x-bind="slideOver" class="w-screen max-w-full">
+                  <div
+                    class="flex flex-col h-full py-5 overflow-y-scroll bg-white border-l shadow-lg border-neutral-100/70">
+                    <div class="px-4 sm:px-5">
+                      <div class="flex items-start justify-between pb-1">
+
+
+                        <h2 class="text-4xl font-semibold leading-6 text-gray-900" id="htmx-title"></h2>
+
+
+                        <div class="flex items-center h-auto ml-3">
+                          <button x-bind="closeButton"
+                            class="absolute top-0 right-0 z-30 flex items-center justify-center px-3 py-2 mt-4 mr-5 space-x-1 text-xs font-medium uppercase border rounded-md border-neutral-200 text-neutral-600 hover:bg-neutral-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                              stroke="currentColor" class="w-4 h-4">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            <span>Close</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="relative flex-1 px-4 mt-5 sm:px-5">
+                      <div class="absolute inset-0 px-4 sm:px-5">
+
+
+                        <div
+                          class="relative h-full overflow-y-scroll border border-dashed rounded-md border-neutral-300 p-4"
+                          id="htmx-target"></div>
+
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </main>
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('postSlideOver', () => ({
+        open: false,
+        init() {
+          document.body.addEventListener('htmx:afterSwap', (event) => {
+            if (event.detail.elt.id === 'htmx-target') {
+              this.open = true
+            }
+          })
+        },
+        template: {
+          'x-teleport': 'body',
+        },
+        wrapper: {
+          ['x-show']() { return this.open },
+          ['@keydown.window.escape']() { this.open = false }
+        },
+        backdrop: {
+          ['x-show']() { return this.open },
+          ['@click']() { this.open = false },
+          ['x-transition.opacity.duration.600ms']: true
+        },
+        slideOver: {
+          ['x-show']() { return this.open },
+          ['@click.away']() { this.open = false },
+          ['x-transition:enter']: "transform transition ease-in-out duration-500 sm:duration-700",
+          ['x-transition:enter-start']: "translate-x-full",
+          ['x-transition:enter-end']: "translate-x-0",
+          ['x-transition:leave']: "transform transition ease-in-out duration-500 sm:duration-700",
+          ['x-transition:leave-start']: "translate-x-0",
+          ['x-transition:leave-end']: "translate-x-full",
+        },
+        closeButton: {
+          ['@click']() { this.open = false }
+        }
+      }))
+    })
+  </script>
+</body>
+
+</html>
